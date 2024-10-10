@@ -66,11 +66,43 @@ struct DealImageView: View {
                 let imageURL = URL(string: "https://images.socialdeal.nl\(imagePath)")
                 if let onNavigate = onNavigate {
                     Button(action: onNavigate) {
-                        AsyncImageView(url: imageURL)
+                        AsyncImage(url: imageURL) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .cornerRadius(8)
+                            case .failure(_):
+                                Color.gray
+                                    .cornerRadius(8)
+                            default:
+                                ProgressView()
+                                    .frame(height: 200)
+                            }
+                        }
+                        .frame(height: 200)
+                        .clipped()
                     }
                     .buttonStyle(PlainButtonStyle())
                 } else {
-                    AsyncImageView(url: imageURL)
+                    AsyncImage(url: imageURL) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .cornerRadius(8)
+                        case .failure(_):
+                            Color.gray
+                                .cornerRadius(8)
+                        default:
+                            ProgressView()
+                                .frame(height: 200)
+                        }
+                    }
+                    .frame(height: 200)
+                    .clipped()
                 }
             } else {
                 Rectangle()
@@ -79,32 +111,6 @@ struct DealImageView: View {
                     .cornerRadius(8)
             }
         }
-    }
-}
-
-/// A reusable view that asynchronously loads and displays an image from a URL.
-/// Shows a progress view while loading and a gray rectangle if loading fails.
-struct AsyncImageView: View {
-    let url: URL?
-
-    var body: some View {
-        AsyncImage(url: url) { phase in
-            switch phase {
-            case .success(let image):
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .cornerRadius(8)
-            case .failure(_):
-                Color.gray
-                    .cornerRadius(8)
-            default:
-                ProgressView()
-                    .frame(height: 200)
-            }
-        }
-        .frame(height: 200)
-        .clipped()
     }
 }
 
@@ -131,7 +137,7 @@ struct FavoriteButton: View {
 /// Handles formatting based on the selected currency.
 struct PricingView: View {
     let prices: Prices?
-    let deal: Deal;
+    let deal: Deal
     let currencyCode: String
 
     var body: some View {
