@@ -15,6 +15,7 @@ struct FavoritesListView: View {
                         .padding()
                         .navigationTitle("Favorites")
                 } else {
+                    // ScrollView with LazyVStack to match DealsListView
                     ScrollView {
                         LazyVStack(spacing: 0) {
                             ForEach(favoritesViewModel.favoriteDeals) { deal in
@@ -33,8 +34,7 @@ struct FavoritesListView: View {
 
                 // Hidden NavigationLink for programmatic navigation
                 NavigationLink(
-                    destination: selectedDeal != nil ? AnyView(DealDetailView(deal: selectedDeal!)) : AnyView(EmptyView()),
-                    isActive: Binding<Bool>(
+                    destination: selectedDeal != nil ? AnyView(DealDetailView(deal: selectedDeal!)) : AnyView(EmptyView()),                    isActive: Binding<Bool>(
                         get: { selectedDeal != nil },
                         set: { if !$0 { selectedDeal = nil } }
                     )

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct DealCard: View {
     let deal: Deal
-    var onNavigate: () -> Void
+    var onNavigate: (() -> Void)? = nil
     @AppStorage("currencyCode") var currencyCode: String = "EUR"
     @EnvironmentObject var favoritesViewModel: FavoritesViewModel
 
@@ -11,9 +11,31 @@ struct DealCard: View {
             ZStack(alignment: .bottomTrailing) {
                 // Image wrapped in a Button to trigger navigation
                 if let imagePath = deal.image, !imagePath.isEmpty {
-                    Button(action: {
-                        onNavigate()
-                    }) {
+                    if let onNavigate = onNavigate {
+                        Button(action: {
+                            onNavigate()
+                        }) {
+                            AsyncImage(url: URL(string: "https://images.socialdeal.nl\(imagePath)")) { phase in
+                                if let image = phase.image {
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .cornerRadius(8)
+                                } else if phase.error != nil {
+                                    Color.gray
+                                        .cornerRadius(8)
+                                } else {
+                                    ProgressView()
+                                        .frame(height: 200)
+                                }
+                            }
+                            .frame(height: 200)
+                            .clipped()
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    } else {
+                        // Just display image without navigation
                         AsyncImage(url: URL(string: "https://images.socialdeal.nl\(imagePath)")) { phase in
                             if let image = phase.image {
                                 image
@@ -32,7 +54,6 @@ struct DealCard: View {
                         .clipped()
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(PlainButtonStyle())
                 } else {
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
@@ -70,7 +91,6 @@ struct DealCard: View {
                 // Company name
                 Text(deal.company ?? "No Company")
                     .font(.subheadline)
-                    .fontWeight(.medium)
                     .foregroundColor(.gray)
 
                 // Location
@@ -83,7 +103,7 @@ struct DealCard: View {
                 HStack {
                     Text(deal.sold_label ?? "")
                         .font(.subheadline)
-                        .foregroundColor(Color.blue)
+                        .foregroundColor(.cyan)
                     Spacer()
                     // Pricing
                     if let fromPrice = deal.prices?.from_price?.formatted(currencyCode: currencyCode) {
@@ -92,9 +112,22 @@ struct DealCard: View {
                             .foregroundColor(.gray)
                     }
                     if let price = deal.prices?.price?.formatted(currencyCode: currencyCode) {
-                        Text(price)
-                            .font(.title3) 
-                            .foregroundColor(.green)
+                        // Extract the last three characters (comma and cents)
+                        let fractionalPart = String(price.suffix(3))
+                        // Extract the rest of the price (currency symbol and whole number)
+                        let wholePart = String(price.dropLast(3))
+
+                        HStack(alignment: .center, spacing: 0) {
+                            // Currency and whole number part
+                            Text(wholePart)
+                                .font(.title)
+                                .foregroundColor(.green)
+
+                            // Fractional part (comma and cents)
+                            Text(fractionalPart)
+                                .font(.title3)
+                                .foregroundColor(.green)
+                        }
                     }
                 }
             }
