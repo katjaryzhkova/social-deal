@@ -5,6 +5,7 @@ struct DealCard: View {
     var onNavigate: (() -> Void)? = nil
     @AppStorage("currencyCode") var currencyCode: String = "EUR"
     @EnvironmentObject var favoritesViewModel: FavoritesViewModel
+    @ObservedObject var currencyConverter = CurrencyConverter.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -98,41 +99,46 @@ struct DealCard: View {
 
                 // Sold label and pricing
                 HStack {
-                    Text(deal.sold_label ?? "")
-                        .foregroundColor(.cyan)
-                    Spacer()
-                    // Pricing
-                    if let fromPrice = deal.prices?.from_price?.formatted(currencyCode: currencyCode) {
-                        Text(fromPrice)
-                            .strikethrough()
-                            .foregroundColor(.gray)
-                    }
-                    if let price = deal.prices?.price?.formatted(currencyCode: currencyCode) {
-                        // Extract the last three characters (comma and cents)
-                        let fractionalPart = String(price.suffix(3))
-                        // Extract the rest of the price (currency symbol and whole number)
-                        let wholePart = String(price.dropLast(3))
+                   Text(deal.sold_label ?? "")
+                       .foregroundColor(.cyan)
+                   Spacer()
+                   // Pricing
+                   if let fromPrice = deal.prices?.from_price?.formatted(currencyCode: currencyCode) {
+                       Text(fromPrice)
+                           .strikethrough()
+                           .foregroundColor(.gray)
+                   }
+                   if let price = deal.prices?.price?.formatted(currencyCode: currencyCode) {
+                       if price != "N/A" {
+                           // Extract the last three characters (comma and cents)
+                           let fractionalPart = String(price.suffix(3))
+                           // Extract the rest of the price (currency symbol and whole number)
+                           let wholePart = String(price.dropLast(3))
 
-                        HStack(alignment: .center, spacing: 0) {
-                            // Currency and whole number part
-                            Text(wholePart)
-                                .font(.title)
-                                .foregroundColor(.green)
+                           HStack(alignment: .center, spacing: 0) {
+                               // Currency and whole number part
+                               Text(wholePart)
+                                   .font(.title)
+                                   .foregroundColor(.green)
 
-                            // Fractional part (comma and cents)
-                            Text(fractionalPart)
-                                .font(.title3)
-                                .foregroundColor(.green)
-                        }
-                    }
-                }
-            }
-            .padding([.horizontal, .bottom])
-        }
-        .background(Color.white)
-        .cornerRadius(8)
-        .shadow(color: Color.gray.opacity(0.2), radius: 4, x: 0, y: 2)
-    }
+                               // Fractional part (comma and cents)
+                               Text(fractionalPart)
+                                   .font(.title3)
+                                   .foregroundColor(.green)
+                           }
+                       } else {
+                           Text("Price unavailable")
+                               .foregroundColor(.gray)
+                       }
+                   }
+               }
+           }
+           .padding([.horizontal, .bottom])
+       }
+       .background(Color.white)
+       .cornerRadius(8)
+       .shadow(color: Color.gray.opacity(0.2), radius: 4, x: 0, y: 2)
+   }
 
     func toggleFavorite() {
         if favoritesViewModel.isFavorite(deal: deal) {

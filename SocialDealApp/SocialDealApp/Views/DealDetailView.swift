@@ -5,6 +5,7 @@ struct DealDetailView: View {
     @ObservedObject var viewModel: DealDetailViewModel
     @AppStorage("currencyCode") var currencyCode: String = "EUR"
     @EnvironmentObject var favoritesViewModel: FavoritesViewModel
+    @ObservedObject var currencyConverter = CurrencyConverter.shared
 
     init(deal: Deal) {
         self.deal = deal
@@ -18,12 +19,12 @@ struct DealDetailView: View {
                 DealCard(deal: viewModel.deal, onNavigate: nil)
                     .padding(.horizontal)
                     .padding(.top)
-                
+
                 // Description Section
                 Text("Description")
                     .font(.headline)
                     .padding([.horizontal, .top])
-                
+
                 if let description = viewModel.dealDetail?.description.htmlToString {
                     Text(description)
                         .padding(.horizontal)

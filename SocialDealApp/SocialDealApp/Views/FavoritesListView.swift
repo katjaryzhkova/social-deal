@@ -28,13 +28,14 @@ struct FavoritesListView: View {
                         }
                         .padding(.vertical, 4)
                     }
-                    .background(Color(UIColor.systemGroupedBackground)) 
+                    .background(Color(UIColor.systemGroupedBackground))
                     .navigationTitle("Favorites")
                 }
 
                 // Hidden NavigationLink for programmatic navigation
                 NavigationLink(
-                    destination: selectedDeal != nil ? AnyView(DealDetailView(deal: selectedDeal!)) : AnyView(EmptyView()),                    isActive: Binding<Bool>(
+                    destination: selectedDeal != nil ? AnyView(DealDetailView(deal: selectedDeal!)) : AnyView(EmptyView()),
+                    isActive: Binding<Bool>(
                         get: { selectedDeal != nil },
                         set: { if !$0 { selectedDeal = nil } }
                     )
