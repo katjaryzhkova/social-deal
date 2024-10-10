@@ -1,56 +1,114 @@
 import SwiftUI
 
 struct DealDetailView: View {
-    @StateObject var viewModel: DealDetailViewModel
+    @ObservedObject var viewModel = DealDetailViewModel()
     @AppStorage("currencyCode") var currencyCode: String = "EUR"
     @EnvironmentObject var favoritesViewModel: FavoritesViewModel
 
-    init(uniqueID: String) {
-        _viewModel = StateObject(wrappedValue: DealDetailViewModel(uniqueID: uniqueID, favoritesViewModel: FavoritesViewModel()))
-    }
-
     var body: some View {
         ScrollView {
-            if let deal = viewModel.dealDetail {
-                VStack(alignment: .leading) {
-                    Text(deal.title)
-                        .font(.title)
-                        .padding(.top)
-                    Text(deal.company)
-                        .font(.headline)
-                    Text(deal.city)
+            VStack(alignment: .leading, spacing: 8) {
+                ZStack(alignment: .bottomTrailing) {
+                    if let imagePath = viewModel.deal.image, !imagePath.isEmpty {
+                        AsyncImage(url: URL(string: "https://images.socialdeal.nl\(imagePath)")) { phase in
+                            if let image = phase.image {
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .cornerRadius(8)
+                            } else if phase.error != nil {
+                                Color.red
+                                    .cornerRadius(8)
+                            } else {
+                                ProgressView()
+                                    .frame(height: 200)
+                            }
+                        }
+                        .frame(height: 200)
+                        .clipped()
+                    } else {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(height: 200)
+                            .cornerRadius(8)
+                    }
+
+                    Button(action: {
+                        toggleFavorite()
+                    }) {
+                        Image(systemName: favoritesViewModel.isFavorite(deal: viewModel.deal) ? "heart.fill" : "heart")
+                            .resizable()
+                            .frame(width: 30, height: 30)
+                            .foregroundColor(.white)
+                            .padding(10)
+                    }
+                    .padding(8)
+                }
+
+                // Deal information
+                VStack(alignment: .leading, spacing: 4) {
+                    // Deal title
+                    Text(viewModel.deal.title ?? "No Title")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .lineLimit(2)
+                        .padding(.bottom, 4)
+
+                    // Company name
+                    Text(viewModel.deal.company ?? "No Company")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.gray)
+
+                    // Location
+                    Text(viewModel.deal.city ?? "No City")
                         .font(.subheadline)
                         .foregroundColor(.gray)
+                        .padding(.bottom, 8)
+
+                    // Sold label and pricing
                     HStack {
-                        Text(deal.sold_label)
-                            .font(.caption)
+                        Text(viewModel.deal.sold_label ?? "")
+                            .font(.subheadline)
+                            .foregroundColor(Color.blue) 
                         Spacer()
-                        Text(deal.prices.from_price?.formatted(currencyCode: currencyCode) ?? "")
-                            .strikethrough()
-                            .foregroundColor(.gray)
-                        Text(deal.prices.price?.formatted(currencyCode: currencyCode) ?? "")
-                            .font(.headline)
+                        // Pricing
+                        if let fromPrice = viewModel.deal.prices?.from_price?.formatted(currencyCode: currencyCode) {
+                            Text(fromPrice)
+                                .strikethrough()
+                                .foregroundColor(.gray)
+                        }
+                        if let price = viewModel.deal.prices?.price?.formatted(currencyCode: currencyCode) {
+                            Text(price)
+                                .font(.title3)
+                                .foregroundColor(.green)
+                        }
                     }
-                    .padding(.top, 5)
-                    Divider()
-                        .padding(.vertical)
-                    Text("Description")
-                        .font(.headline)
-                    Text(deal.description.htmlToString)
-                        .padding(.top, 5)
                 }
-                .padding(.horizontal)
-            } else {
-                ProgressView()
+                .padding([.horizontal, .bottom])
+
+                Divider()
+                    .padding(.vertical)
+                Text("Description")
+                    .font(.headline)
+                    .padding(.horizontal)
+                if let description = viewModel.dealDetail?.description.htmlToString {
+                    Text(description)
+                        .padding(.horizontal)
+                } else {
+                    ProgressView()
+                        .padding()
+                }
             }
         }
-        .navigationBarItems(trailing: Button(action: {
-            viewModel.toggleFavorite()
-        }) {
-            Image(systemName: viewModel.isFavorite ? "heart.fill" : "heart")
-                .foregroundColor(viewModel.isFavorite ? .red : .primary)
-        })
-        .navigationTitle("Deal Details")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitle("Deal Details", displayMode: .inline)
+    }
+
+    func toggleFavorite() {
+        if favoritesViewModel.isFavorite(deal: viewModel.deal) {
+            favoritesViewModel.removeFavorite(deal: viewModel.deal)
+        } else {
+            favoritesViewModel.addFavorite(deal: viewModel.deal)
+        }
     }
 }

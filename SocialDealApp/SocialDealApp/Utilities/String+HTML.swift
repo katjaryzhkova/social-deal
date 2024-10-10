@@ -2,7 +2,7 @@ import Foundation
 
 extension String {
     var htmlToAttributedString: NSAttributedString? {
-        guard let data = data(using: .utf8) else { return nil }
+        let data = Data(self.utf8) 
         do {
             return try NSAttributedString(
                 data: data,
@@ -10,11 +10,11 @@ extension String {
                 documentAttributes: nil
             )
         } catch {
-            print("Error converting HTML to Attributed String: \(error.localizedDescription)")
+            print("Error converting HTML to AttributedString: \(error)")
             return nil
         }
     }
-    
+
     var htmlToString: String {
         htmlToAttributedString?.string ?? ""
     }

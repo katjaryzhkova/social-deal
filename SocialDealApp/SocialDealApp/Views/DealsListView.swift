@@ -3,19 +3,35 @@ import SwiftUI
 struct DealsListView: View {
     @StateObject var viewModel = DealsViewModel()
     @EnvironmentObject var favoritesViewModel: FavoritesViewModel
+    @State private var selectedDeal: Deal? = nil
 
     var body: some View {
         NavigationView {
-            List(viewModel.deals) { deal in
-                ZStack {
-                    NavigationLink(destination: DealDetailView(uniqueID: deal.unique)
-                                    .environmentObject(favoritesViewModel)) {
-                        EmptyView()
+            ZStack {
+                // Main Content
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(viewModel.deals) { deal in
+                            DealCard(deal: deal, onNavigate: {
+                                selectedDeal = deal
+                            })
+                            .padding(.horizontal)
+                            .padding(.vertical, 4)
+                        }
                     }
-                    .opacity(0)
-                    DealRow(deal: deal)
-                        .environmentObject(favoritesViewModel)
                 }
+                
+                // Hidden NavigationLink for programmatic navigation
+                NavigationLink(
+                    destination: DealDetailView(),
+                    isActive: Binding<Bool>(
+                        get: { selectedDeal != nil },
+                        set: { if !$0 { selectedDeal = nil } }
+                    )
+                ) {
+                    EmptyView()
+                }
+                .hidden()
             }
             .navigationTitle("Deals")
             .onAppear {
