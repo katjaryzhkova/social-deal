@@ -21,7 +21,7 @@ struct DealCard: View {
                                     .aspectRatio(contentMode: .fill)
                                     .cornerRadius(8)
                             } else if phase.error != nil {
-                                Color.red
+                                Color.gray
                                     .cornerRadius(8)
                             } else {
                                 ProgressView()
@@ -49,7 +49,7 @@ struct DealCard: View {
                         .frame(width: 24, height: 24)
                         .foregroundColor(.white)
                         .padding(10)
-                        .background(Color.black.opacity(0.6))
+                        .background(Color.black.opacity(0.6)) // Not according to provided wireframe, but otherwise the icon is hard to see sometimes
                         .clipShape(Circle())
                 }
                 .padding(12)

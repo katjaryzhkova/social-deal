@@ -11,22 +11,29 @@ struct FavoritesListView: View {
                     // Empty State View
                     Text("No favorites yet.")
                         .foregroundColor(.gray)
+                        .font(.title2)
+                        .padding()
                         .navigationTitle("Favorites")
                 } else {
-                    // List of Favorite Deals
-                    List(favoritesViewModel.favoriteDeals) { deal in
-                        DealCard(deal: deal, onNavigate: {
-                            selectedDeal = deal
-                        })
-                        .listRowInsets(EdgeInsets())
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            ForEach(favoritesViewModel.favoriteDeals) { deal in
+                                DealCard(deal: deal, onNavigate: {
+                                    selectedDeal = deal
+                                })
+                                .padding(.horizontal)
+                                .padding(.vertical, 4)
+                            }
+                        }
+                        .padding(.vertical, 4)
                     }
-                    .listStyle(PlainListStyle())
+                    .background(Color(UIColor.systemGroupedBackground)) 
                     .navigationTitle("Favorites")
                 }
 
-                // Hidden NavigationLink for Programmatic Navigation
+                // Hidden NavigationLink for programmatic navigation
                 NavigationLink(
-                    destination: DealDetailView(),
+                    destination: selectedDeal != nil ? AnyView(DealDetailView(deal: selectedDeal!)) : AnyView(EmptyView()),
                     isActive: Binding<Bool>(
                         get: { selectedDeal != nil },
                         set: { if !$0 { selectedDeal = nil } }

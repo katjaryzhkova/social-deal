@@ -23,7 +23,7 @@ struct DealsListView: View {
                 
                 // Hidden NavigationLink for programmatic navigation
                 NavigationLink(
-                    destination: DealDetailView(),
+                    destination: selectedDeal != nil ? AnyView(DealDetailView(deal: selectedDeal!)) : AnyView(EmptyView()),
                     isActive: Binding<Bool>(
                         get: { selectedDeal != nil },
                         set: { if !$0 { selectedDeal = nil } }

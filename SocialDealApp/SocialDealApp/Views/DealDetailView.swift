@@ -1,14 +1,21 @@
 import SwiftUI
 
 struct DealDetailView: View {
-    @ObservedObject var viewModel = DealDetailViewModel()
+    let deal: Deal
+    @ObservedObject var viewModel: DealDetailViewModel
     @AppStorage("currencyCode") var currencyCode: String = "EUR"
     @EnvironmentObject var favoritesViewModel: FavoritesViewModel
+
+    init(deal: Deal) {
+        self.deal = deal
+        self.viewModel = DealDetailViewModel()
+    }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 8) {
                 ZStack(alignment: .bottomTrailing) {
+                    // Image 
                     if let imagePath = viewModel.deal.image, !imagePath.isEmpty {
                         AsyncImage(url: URL(string: "https://images.socialdeal.nl\(imagePath)")) { phase in
                             if let image = phase.image {
@@ -17,7 +24,7 @@ struct DealDetailView: View {
                                     .aspectRatio(contentMode: .fill)
                                     .cornerRadius(8)
                             } else if phase.error != nil {
-                                Color.red
+                                Color.gray
                                     .cornerRadius(8)
                             } else {
                                 ProgressView()
@@ -33,16 +40,22 @@ struct DealDetailView: View {
                             .cornerRadius(8)
                     }
 
+                    // Favorite Button on top with higher zIndex
                     Button(action: {
                         toggleFavorite()
                     }) {
-                        Image(systemName: favoritesViewModel.isFavorite(deal: viewModel.deal) ? "heart.fill" : "heart")
+                        Image(systemName: favoritesViewModel.isFavorite(deal: deal) ? "heart.fill" : "heart")
                             .resizable()
                             .frame(width: 30, height: 30)
                             .foregroundColor(.white)
                             .padding(10)
+                            .background(Color.black.opacity(0.6))
+                            .clipShape(Circle())
                     }
                     .padding(8)
+                    .zIndex(1)
+                    .contentShape(Circle())
+                    .accessibilityLabel(favoritesViewModel.isFavorite(deal: deal) ? "Remove from favorites" : "Add to favorites")
                 }
 
                 // Deal information
@@ -70,7 +83,7 @@ struct DealDetailView: View {
                     HStack {
                         Text(viewModel.deal.sold_label ?? "")
                             .font(.subheadline)
-                            .foregroundColor(Color.blue) 
+                            .foregroundColor(Color.blue)
                         Spacer()
                         // Pricing
                         if let fromPrice = viewModel.deal.prices?.from_price?.formatted(currencyCode: currencyCode) {
@@ -105,10 +118,10 @@ struct DealDetailView: View {
     }
 
     func toggleFavorite() {
-        if favoritesViewModel.isFavorite(deal: viewModel.deal) {
-            favoritesViewModel.removeFavorite(deal: viewModel.deal)
+        if favoritesViewModel.isFavorite(deal: deal) {
+            favoritesViewModel.removeFavorite(deal: deal)
         } else {
-            favoritesViewModel.addFavorite(deal: viewModel.deal)
+            favoritesViewModel.addFavorite(deal: deal)
         }
     }
 }
