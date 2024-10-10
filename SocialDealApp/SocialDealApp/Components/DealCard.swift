@@ -85,24 +85,20 @@ struct DealCard: View {
                 Text(deal.title ?? "No Title")
                     .font(.title3)
                     .fontWeight(.semibold)
-                    .lineLimit(2)
                     .padding(.bottom, 4)
 
                 // Company name
                 Text(deal.company ?? "No Company")
-                    .font(.subheadline)
                     .foregroundColor(.gray)
 
                 // Location
                 Text(deal.city ?? "No City")
-                    .font(.subheadline)
                     .foregroundColor(.gray)
                     .padding(.bottom, 8)
 
                 // Sold label and pricing
                 HStack {
                     Text(deal.sold_label ?? "")
-                        .font(.subheadline)
                         .foregroundColor(.cyan)
                     Spacer()
                     // Pricing
