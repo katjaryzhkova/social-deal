@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// A view that represents a single deal card, displaying deal information, image, and favorite status.
 struct DealCard: View {
     let deal: Deal
     var onNavigate: (() -> Void)? = nil
@@ -44,7 +45,6 @@ struct DealCard: View {
         .shadow(color: Color.gray.opacity(0.2), radius: 4, x: 0, y: 2)
     }
 
-    /// Toggles the favorite status of the deal.
     private func toggleFavorite() {
         if favoritesViewModel.isFavorite(deal: deal) {
             favoritesViewModel.removeFavorite(deal: deal)
@@ -54,6 +54,8 @@ struct DealCard: View {
     }
 }
 
+/// A view that handles displaying the deal's image.
+/// It can optionally handle navigation when the image is tapped.
 struct DealImageView: View {
     let imagePath: String?
     var onNavigate: (() -> Void)? = nil
@@ -80,6 +82,8 @@ struct DealImageView: View {
     }
 }
 
+/// A reusable view that asynchronously loads and displays an image from a URL.
+/// Shows a progress view while loading and a gray rectangle if loading fails.
 struct AsyncImageView: View {
     let url: URL?
 
@@ -123,6 +127,8 @@ struct FavoriteButton: View {
     }
 }
 
+/// A view that displays pricing information, including sold label and prices.
+/// Handles formatting based on the selected currency.
 struct PricingView: View {
     let prices: Prices?
     let deal: Deal;
@@ -150,6 +156,8 @@ struct PricingView: View {
     }
 }
 
+/// A view that formats and displays the price by splitting it into whole and fractional parts.
+/// Enhances the visual presentation of pricing.
 struct PriceText: View {
     let price: String
 

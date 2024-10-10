@@ -1,5 +1,6 @@
 import Foundation
 
+/// An extension of the `String` type to provide functionality for converting HTML strings to attributed or plain strings.
 extension String {
     var htmlToAttributedString: NSAttributedString? {
         let data = Data(self.utf8) 
