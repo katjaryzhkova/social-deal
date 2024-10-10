@@ -18,6 +18,7 @@ class CurrencyConverter: ObservableObject {
     private let exchangeRateExpiration: TimeInterval = 3600 // 1 hour in seconds
     private var cancellables = Set<AnyCancellable>()
 
+    /// Fetches the latest exchange rate from the ExchangeRate-API.
     func fetchExchangeRate() {
         let apiKey = "838602d44d1467dfd56b7db1" // using a personal account on ExchangeRate-API with a free tier (max 1500 requests/month)
         let urlString = "https://v6.exchangerate-api.com/v6/\(apiKey)/latest/EUR"
@@ -60,6 +61,7 @@ class CurrencyConverter: ObservableObject {
             .store(in: &cancellables)
     }
 
+    /// Saves the exchange rate and last updated date to UserDefaults.
     private func saveExchangeRate() {
         if let exchangeRate = exchangeRate, let lastUpdated = lastUpdated {
             UserDefaults.standard.set(exchangeRate, forKey: exchangeRateKey)
@@ -67,6 +69,7 @@ class CurrencyConverter: ObservableObject {
         }
     }
 
+    /// Loads the exchange rate from UserDefaults, fetching a new rate if expired.
     private func loadExchangeRate() {
         if let storedRate = UserDefaults.standard.value(forKey: exchangeRateKey) as? Double,
            let storedDate = UserDefaults.standard.value(forKey: lastUpdatedKey) as? Date {
@@ -86,6 +89,7 @@ class CurrencyConverter: ObservableObject {
         }
     }
 
+    /// Observes app lifecycle to refresh exchange rate when the app becomes active.
     private func observeAppLifecycle() {
         NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .sink { [weak self] _ in
@@ -94,6 +98,7 @@ class CurrencyConverter: ObservableObject {
             .store(in: &cancellables)
     }
 
+    /// Refreshes the exchange rate if the cached rate has expired.
     private func refreshExchangeRateIfNeeded() {
         if let lastUpdated = lastUpdated {
             let timeInterval = Date().timeIntervalSince(lastUpdated)

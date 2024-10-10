@@ -1,6 +1,7 @@
 import Foundation
 
 extension Amount {
+    /// Formats the amount based on the selected currency code.
     func formatted(currencyCode: String) -> String {
         guard let amount = amount else { return "" }
         let amountInSelectedCurrency: Double

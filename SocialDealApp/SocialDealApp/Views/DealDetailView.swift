@@ -2,10 +2,10 @@ import SwiftUI
 
 struct DealDetailView: View {
     let deal: Deal
-    @ObservedObject var viewModel: DealDetailViewModel
-    @AppStorage("currencyCode") var currencyCode: String = "EUR"
-    @EnvironmentObject var favoritesViewModel: FavoritesViewModel
-    @ObservedObject var currencyConverter = CurrencyConverter.shared
+    @ObservedObject private var viewModel: DealDetailViewModel
+    @AppStorage("currencyCode") private var currencyCode: String = "EUR"
+    @EnvironmentObject private var favoritesViewModel: FavoritesViewModel
+    @ObservedObject private var currencyConverter = CurrencyConverter.shared
 
     init(deal: Deal) {
         self.deal = deal
@@ -35,13 +35,5 @@ struct DealDetailView: View {
             }
         }
         .navigationBarTitle("Deal Details", displayMode: .inline)
-    }
-
-    func toggleFavorite() {
-        if favoritesViewModel.isFavorite(deal: deal) {
-            favoritesViewModel.removeFavorite(deal: deal)
-        } else {
-            favoritesViewModel.addFavorite(deal: deal)
-        }
     }
 }
